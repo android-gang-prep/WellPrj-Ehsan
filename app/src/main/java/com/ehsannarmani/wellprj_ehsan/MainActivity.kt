@@ -53,19 +53,19 @@ class MainActivity : ComponentActivity() {
         AppDatabase.setup(this)
         insertInitialData()
 
-        lifecycleScope.launch(Dispatchers.IO){
-            while (true){
-                delay(500)
-                checkInternet(
-                    onFail =  {
-                        _networkAvailable.update { false }
-                    },
-                    onOk = {
-                        _networkAvailable.update { true }
-                    }
-                )
-            }
-        }
+//        lifecycleScope.launch(Dispatchers.IO){
+//            while (true){
+//                delay(500)
+//                checkInternet(
+//                    onFail =  {
+//                        _networkAvailable.update { false }
+//                    },
+//                    onOk = {
+//                        _networkAvailable.update { true }
+//                    }
+//                )
+//            }
+//        }
         setContent {
             WellPrjEhsanTheme {
 
