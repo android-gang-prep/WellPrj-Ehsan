@@ -1,6 +1,7 @@
 package com.ehsannarmani.wellprj_ehsan
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,8 +9,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
@@ -27,16 +32,54 @@ import com.ehsannarmani.wellprj_ehsan.ui.screens.HomeScreen
 import com.ehsannarmani.wellprj_ehsan.ui.screens.WellScreen
 import com.ehsannarmani.wellprj_ehsan.ui.theme.WellPrjEhsanTheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 
 class MainActivity : ComponentActivity() {
+
+    companion object{
+        val _networkAvailable = MutableStateFlow(true)
+        val networkAvailable = _networkAvailable.asStateFlow()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         AppDatabase.setup(this)
         insertInitialData()
+
+        lifecycleScope.launch(Dispatchers.IO){
+            while (true){
+                delay(500)
+                checkInternet(
+                    onFail =  {
+                        _networkAvailable.update { false }
+                    },
+                    onOk = {
+                        _networkAvailable.update { true }
+                    }
+                )
+            }
+        }
         setContent {
             WellPrjEhsanTheme {
+
+                val context = LocalContext.current
+
+
+                val networkAvailable by MainActivity.networkAvailable.collectAsState()
+
+                LaunchedEffect(networkAvailable){
+                    if (!networkAvailable){
+                        Toast.makeText(context, "You are diconnected", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -150,5 +193,21 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+}
+fun checkInternet(onFail:()->Unit,onOk:()->Unit){
+    val client = OkHttpClient()
+        .newBuilder()
+        .build()
+    val request = Request.Builder()
+        .get()
+        .url("https://google.com")
+        .build()
+
+    try {
+        client.newCall(request).execute()
+        onOk()
+    }    catch (e:Exception){
+        onFail()
     }
 }

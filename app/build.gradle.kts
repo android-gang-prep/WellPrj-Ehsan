@@ -80,4 +80,7 @@ dependencies {
     val navVersion = "2.7.7"
 
     implementation("androidx.navigation:navigation-compose:$navVersion")
+
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
 }

@@ -1,5 +1,6 @@
 package com.ehsannarmani.wellprj_ehsan.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,10 +33,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.ehsannarmani.wellprj_ehsan.viewModels.HomeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ehsannarmani.wellprj_ehsan.MainActivity
 import com.ehsannarmani.wellprj_ehsan.navigation.Routes
 import com.ehsannarmani.wellprj_ehsan.ui.theme.font
 import com.ehsannarmani.wellprj_ehsan.utils.toColor
@@ -47,10 +50,13 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel()
 ) {
 
+    val context = LocalContext.current
+
     val wells by viewModel.wells.collectAsState()
     val wellLayers by viewModel.wellLayers.collectAsState()
     val rockTypes by viewModel.rockTypes.collectAsState()
 
+    val networkAvailable by MainActivity.networkAvailable.collectAsState()
 
 
     if (wells.isNotEmpty() && wellLayers.isNotEmpty() && rockTypes.isNotEmpty()) {
@@ -168,9 +174,13 @@ fun HomeScreen(
             FloatingActionButton(
                 modifier = Modifier.align(Alignment.BottomEnd),
                 onClick = {
-                    navController.navigate(Routes.Well.route)
+                   if (networkAvailable){
+                       navController.navigate(Routes.Well.route)
+                   }else{
+                       Toast.makeText(context, "Make sure you are connected to internet", Toast.LENGTH_SHORT).show()
+                   }
                 },
-                shape = CircleShape
+                shape = CircleShape,
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,

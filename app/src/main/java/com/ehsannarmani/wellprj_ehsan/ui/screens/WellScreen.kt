@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.ehsannarmani.wellprj_ehsan.viewModels.WellViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ehsannarmani.wellprj_ehsan.MainActivity
 import com.ehsannarmani.wellprj_ehsan.database.entities.RockType
 import com.ehsannarmani.wellprj_ehsan.database.entities.Well
 import com.ehsannarmani.wellprj_ehsan.database.entities.WellLayer
@@ -61,6 +62,8 @@ fun WellScreen(
         if (wellId == null) return@LaunchedEffect
         viewModel.getWell(wellId)
     }
+
+    val networkAvailable by MainActivity.networkAvailable.collectAsState()
 
     val rockTypes by viewModel.rockTypes.collectAsState()
     val wellLayers by viewModel.wellLayers.collectAsState()
@@ -261,7 +264,7 @@ fun WellScreen(
                         }
 
                     }
-                }, shape = RoundedCornerShape(8.dp)) {
+                }, shape = RoundedCornerShape(8.dp), enabled = networkAvailable) {
                     Text(text = "Submit")
                 }
             }
